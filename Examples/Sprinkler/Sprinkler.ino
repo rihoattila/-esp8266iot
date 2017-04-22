@@ -5,6 +5,14 @@
 #include "IoT.h"
 #include "MQTT.h"
 
+/* WIFI parameters */
+#define WIFI_SSID "WiFiRA"
+#define WIFI_Password "Blahhala"
+
+/* MQTT parameters */
+#define MQTT_SERVER (char *)"192.168.1.252"
+#define MQTT_PORT 1883
+
 char mqttTopicState[23] = "0000000000000000/state";
 char mqttTopicSetDO[23] = "0000000000000000/setdo";
 char mqttTopicGetState[26] = "0000000000000000/getstate";
@@ -59,13 +67,13 @@ void setup() {
   timervalue = -1;
 
   /* Initialize WiFi */
-  wifiSetup();
+  wifiSetup(WIFI_SSID, WIFI_Password);
 
   /* Initialize FOTA */
   fotaSetup(wifiHostname);
 
   /* Initialize MQTT */
-  mqttSetup();
+  mqttSetup(MQTT_SERVER, MQTT_PORT);
   mqttSetupTopic(mqttTopicState);
   mqttSetupTopic(mqttTopicSetDO);
   mqttSetupTopic(mqttTopicGetState);
