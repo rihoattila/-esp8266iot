@@ -6,8 +6,8 @@
 #include "MQTT.h"
 
 /* WIFI parameters */
-#define WIFI_SSID "WiFiRA"
-#define WIFI_Password "Blahhala"
+#define WIFI_SSID "......"
+#define WIFI_Password "......"
 
 /* MQTT parameters */
 #define MQTT_SERVER (char *)"192.168.1.252"
