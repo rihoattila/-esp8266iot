@@ -1,36 +1,88 @@
+#include <ArduinoJson.h>
+
+#include "WiFi.h"
 #include "FOTA.h"
-#include "WebConfig/WebConfig.h"
+#include "IoT.h"
 #include "MQTT.h"
-#include "IOT.h"
 
-void setup() {
-    // setup IOT
-    createEUID();
+/* WIFI parameters */
+#define WIFI_SSID "WiFiRA"
+#define WIFI_Password "Blahhala"
 
-    // setup web config
-    setupWebConfig(EUID);
+/* MQTT parameters */
+#define MQTT_SERVER (char *)"192.168.1.252"
+#define MQTT_PORT 1883
 
-    // setup FOTA
-    setupFOTA();
+char mqttTopicGetState[26] = "0000000000000000/getstate";
 
-    // setup MQTT
-    setupMQTT(EUID, config.ssid.c_str(), config.password.c_str());
+char msg[100];
 
-    //**** Normal Sketch code here...
+void setup()
+{
+  
+  /* Initialize WiFi */
+  wifiSetup(WIFI_SSID, WIFI_Password);
+
+  /* Initialize FOTA */
+  fotaSetup(wifiHostname);
+
+  /* Initialize MQTT */
+  mqttSetup(MQTT_SERVER, MQTT_PORT);
+  mqttSetupTopic(mqttTopicGetState);
+  
+  mqttSubscribe(mqttTopicGetState);
+
+  setPublishCallback(mqttPublishReceived);
+  setReconnectCallback(mqttReconnected);
       
-   
+}
+
+int compare(char* a, char* b)
+{
+  int ret = 0;
+  if(strlen(a) == strlen(b))
+  {
+    for(int i = 0; i < strlen(a); i++)
+    {
+      if(a[i] != b[i])
+      {
+        ret = i;
+        break;
+      }
+    }
+  }
+  else
+  {
+    ret = -1;
+  }
+  return ret;
+}
+
+void mqttReconnected()
+{
+  mqttSubscribe(mqttTopicGetState);
+}
+
+void mqttPublishReceived(char* topic, char* payload, unsigned int length)
+{
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  // OTA request handling
-  handleFOTA();
-  
-  //  WebServer requests handling
-  handleWebConfig();
-  
-  // handle MQTT thing
-  handleMQTT();
+
+  unsigned long now = millis();
+
+  /* Handle WiFi */
+  wifiLoop(now);
+
+  /* Handle FOTA */
+  fotaLoop(now);
+
+  /* Handle IoT */
+  iotLoop(now);
+
+  /* Handle MQTT */
+  mqttLoop(now);
 
 }
 
